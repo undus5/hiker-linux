@@ -3,7 +3,7 @@
 }
 :443, __DOMAIN__ {
 	forward_proxy {
-		basic_auth __USER__ __PASS__
+		basic_auth _USER_ _PASS_
 		hide_ip
 		hide_via
 		probe_resistance
