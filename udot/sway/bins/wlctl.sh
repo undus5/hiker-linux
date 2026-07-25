@@ -171,8 +171,8 @@ bar_status() {
    local str
    while true; do
       str=""
-      str+="$(scratchpad-count)"
-      str+="$(muted-label)"
+      str+="$(scratchpad_count)"
+      str+="$(muted_label)"
       str+="$(date '+%a %b.%d %H:%M')"
       printf "%s \n" "${str}"
       sleep 0.1
