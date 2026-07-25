@@ -2,11 +2,11 @@
 
 set -e
 
-errf() { printf "${@}" >&2 && exit 1; }
+errf() { printf "${@}\n" >&2; exit 1; }
 
-command-check() {
-   local name=${1}
-   command -v ${name} &>/dev/null || errf "command not found: ${name}\n"
+test_cmd() {
+   local name="$1"
+   command -v "$name" &>/dev/null || errf "command not found: ${name}"
 }
 
 #################################################################################
@@ -14,8 +14,12 @@ command-check() {
 #################################################################################
 
 reload() {
-   [[ -n "${SWAYSOCK}" ]] && swaymsg reload
-   [[ -n "${LABWC_PID}" ]] && labwc -r
+   if [[ -n "${SWAYSOCK}" ]]; then
+      swaymsg reload
+   fi
+   if [[ -n "${LABWC_PID}" ]]; then
+      labwc -r
+   fi
    if [[ -n "${SWAYSOCK}" || -n "${LABWC_PID}" ]]; then
       wlinit.sh
       pidof kanshi &>/dev/null && sleep 0.1 && kanshictl reload
@@ -27,30 +31,38 @@ reload() {
 # https://wiki.archlinux.org/title/WirePlumber
 #################################################################################
 
-vol-get() {
-   command-check wpctl
-   local id=${1}
+vol_get() {
+   test_cmd wpctl
+   local id="$1"
    local info=$(wpctl get-volume ${id})
-   local integer=$(echo "${info}" | awk -F'[. ]' '{ print $2 }')
-   local fraction=$(echo "${info}" | awk -F'[. ]' '{ print $3 }')
-   local muted=$(echo "${info}" | awk -F'[. ]' '{ print $4 }')
+   local integer=$(echo "$info" | awk -F'[. ]' '{ print $2 }')
+   local fraction=$(echo "$info" | awk -F'[. ]' '{ print $3 }')
+   local muted=$(echo "$info" | awk -F'[. ]' '{ print $4 }')
    local label=""
 
-   if [[ "${muted}" == "[MUTED]" ]]; then
-      label=${muted}
+   if [[ "$muted" == "[MUTED]" ]]; then
+      label="$muted"
    else
-      [[ "${integer}" == "1" ]] && label="100%" || label="${fraction}%"
+      if [[ "$integer" == "1" ]]; then
+         label="100%"
+      else
+         label="${fraction}%"
+      fi
    fi
-   echo "${label}"
+   echo "$label"
 }
 
-vol-num() {
-   command-check wpctl
-   [[ "${1}" == "[MUTED]" ]] && echo "0" || echo "${1:0:-1}"
+vol_num() {
+   test_cmd wpctl
+   if [[ "$1" == "[MUTED]" ]]; then
+      echo "0"
+   else
+      echo "${1:0:-1}"
+   fi
 }
 
 # https://wiki.archlinux.org/title/Desktop_notifications#Replace_previous_notification
-vol-notify() {
+vol_notify() {
    local vol="$1"
    local msg="${2:-Volume}"
    notify-send -a $(basename $0) -t 1000 \
@@ -59,42 +71,44 @@ vol-notify() {
       "$msg"
 }
 
-vol-down() {
-   command-check wpctl
+vol_down() {
+   test_cmd wpctl
    per=${1:-5}
    wpctl set-volume @DEFAULT_AUDIO_SINK@ ${per}%-
-   local vol=$(vol-num $(vol-get @DEFAULT_AUDIO_SINK@))
+   local vol=$(vol_num $(vol_get @DEFAULT_AUDIO_SINK@))
    wobctl.sh $vol
-   # vol-notify $vol
+   # vol_notify $vol
 }
 
-vol-up() {
-   command-check wpctl
+vol_up() {
+   test_cmd wpctl
    per=${1:-5}
    wpctl set-volume @DEFAULT_AUDIO_SINK@ ${per}%+
-   local vol=$(vol-num $(vol-get @DEFAULT_AUDIO_SINK@))
+   local vol=$(vol_num $(vol_get @DEFAULT_AUDIO_SINK@))
    wobctl.sh $vol
-   # vol-notify $vol
+   # vol_notify $vol
 }
 
-mute-toggle-speaker() {
-   command-check wpctl
+mute_toggle_speaker() {
+   test_cmd wpctl
    wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
-   local vol=$(vol-num $(vol-get @DEFAULT_AUDIO_SINK@))
+   local vol=$(vol_num $(vol_get @DEFAULT_AUDIO_SINK@))
    wobctl.sh $vol
    # local msg=
-   # [[ "$vol" == "0" ]] && msg="Speaker Muted"
-   # vol-notify "$vol" "$msg"
+   # if [[ "$vol" == "0" ]]; then
+   #    msg="Speaker Muted"
+   # fi
+   # vol_notify "$vol" "$msg"
 }
 
-mute-toggle-mic() {
-   command-check wpctl
+mute_toggle_mic() {
+   test_cmd wpctl
    wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
 }
 
-sink-toggle() {
-   command-check wpctl
-   command-check jq
+sink_toggle() {
+   test_cmd wpctl
+   test_cmd jq
    local sinkids=( $(pw-dump | jq '.[]|select(.info.props."media.class"=="Audio/Sink")|.id' | xargs) )
    local currentid=$(wpctl inspect @DEFAULT_SINK@ | head -n 1 | cut -d, -f1 | cut -d' ' -f2)
    local size=${#sinkids[@]}
@@ -104,7 +118,7 @@ sink-toggle() {
 
       for i in "${!sinkids[@]}"; do
          if [[ "${sinkids[$i]}" == "${currentid}" ]]; then
-            index=${i}
+            index=$i
             break
          fi
       done
@@ -122,28 +136,38 @@ sink-toggle() {
 # status bar content
 #################################################################################
 
-scratchpad-count() {
+scratchpad_count() {
    local count=$(swaymsg -t get_tree | grep -c '"scratchpad_state": "fresh"')
-   [[ "${count}" =~ ^[1-9]+[0-9]*$ ]] && echo "[ScratchPad: ${count}] " || echo ""
+   if [[ "$count" =~ ^[1-9]+[0-9]*$ ]]; then
+      echo "[ScratchPad: ${count}] "
+   fi
 }
 
-muted-label() {
-   command-check wpctl
+muted_label() {
+   test_cmd wpctl
    local label
    local vol
 
    vol="$(wpctl get-volume @DEFAULT_AUDIO_SINK@)"
-   [[ "${vol}" =~ MUTED ]] && label="Speaker"
-
-   vol="$(wpctl get-volume @DEFAULT_AUDIO_SOURCE@)"
-   if [[ "${vol}" =~ MUTED ]]; then
-      [[ -n "${label}" ]] && label+=",Mic" || label="Mic"
+   if [[ "$vol" =~ MUTED ]]; then
+      label="Speaker"
    fi
 
-   [[ -n "${label}" ]] && echo "[Muted:${label}] " || echo ""
+   vol="$(wpctl get-volume @DEFAULT_AUDIO_SOURCE@)"
+   if [[ "$vol" =~ MUTED ]]; then
+      if [[ -n "$label" ]]; then
+         label+=",Mic"
+      else
+         label="Mic"
+      fi
+   fi
+
+   if [[ -n "$label" ]]; then
+      echo "[Muted:${label}] "
+   fi
 }
 
-bar-status() {
+bar_status() {
    local str
    while true; do
       str=""
@@ -159,8 +183,8 @@ bar-status() {
 # lock screen, suspend
 #################################################################################
 
-lock-screen() {
-   command -v swaylock &>/dev/null || errf "command not found: swaylock\n"
+lock_screen() {
+   test_cmd swaylock
    pidof swaylock || swaylock \
       --daemonize \
       --ignore-empty-password \
@@ -173,8 +197,8 @@ lock-screen() {
       --scaling solid_color
 }
 
-# lock-suspend() {
-#    lock-screen
+# lock_suspend() {
+#    lock_screen
 #    sleep 0.2
 #    systemctl suspend
 # }
@@ -184,38 +208,23 @@ lock-screen() {
 # https://github.com/OctopusET/sway-contrib
 #################################################################################
 
-grim-check() {
-   command -v grim &>/dev/null || errf "command not found: grim\n"
-}
-
-grimshot-check() {
-   command -v grimshot.sh &>/dev/null || errf "command not found: grimshot\n"
-}
-
 save_path=~/Pictures/Screenshot.$(date +%y%m%d.%H%M%S).$(date +%N|cut -c1).png
 
-screenshot-fullscreen() {
-   grim-check
-   grim ${save_path}
+screenshot_fullscreen() {
+   test_cmd grim
+   grim $save_path
 }
 
-screenshot-area() {
-   grim-check && grimshot-check
-   grimshot.sh savecopy area ${save_path}
+screenshot_area() {
+   test_cmd grim
+   test_cmd grimshot.sh
+   grimshot.sh savecopy area $save_path
 }
 
-screenshot-window() {
-   grim-check && grimshot-check
-   grimshot.sh savecopy window ${save_path}
-}
-
-#################################################################################
-# gsettings
-#################################################################################
-
-theme() {
-   echo "gsettings set org.gnome.desktop.interface icon-theme <name>"
-   echo "gsettings set org.gnome.desktop.interface gtk-theme <name>"
+screenshot_window() {
+   test_cmd grim
+   test_cmd grimshot.sh
+   grimshot.sh savecopy window $save_path
 }
 
 #################################################################################
@@ -230,24 +239,22 @@ terminal() {
    fi
 }
 
-dynamic-menu() { wmenu-run -b -f 'monospace bold 18' "${@}"; }
+dynamic_menu() { wmenu-run -b -f 'monospace bold 18' "${@}"; }
 
-app-launcher() { fuzzel; }
+app_launcher() { fuzzel; }
 
 #################################################################################
 # dispatcher
 #################################################################################
 
-case "${1}" in
+case "$1" in
    "")
-      printf "Usage: $(basename $0) <function_name>\n"
-      printf "function_name:\n"
-      declare -F | awk '{print "  " $3}'
+      echo "Usage: $(basename $0) <function_name>"
+      echo "function_name:"
+      declare -F | awk '{print "  " $3}' | sed 's/-/_/g'
       ;;
    *)
-      command="${1}"
-      shift
-      ${command} "${@}"
+      cmd="$1"; shift
+      ${cmd//-/_} "${@}"
       ;;
 esac
-
