@@ -101,7 +101,7 @@ case "$1" in
       for n in ${names[@]}; do
          case "$n" in
             lite-xl|rime-wubi86s|rime|bashrc)
-               install_${n}
+               install_${n//-/_}
                ;;
             *)
                install_config $n
@@ -116,7 +116,7 @@ case "$1" in
       for n in ${names[@]}; do
          case "$n" in
             lite-xl|rime-wubi86s|rime|bashrc)
-               merge_${n}
+               merge_${n//-/_}
                ;;
             *)
                merge_config $n
