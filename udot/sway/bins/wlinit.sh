@@ -27,6 +27,10 @@ if [[ -n "$SWAYSOCK" && -d /usr/share/icons/breeze_cursors ]]; then
     swaymsg seat seat0 xcursor_theme breeze_cursors 32
 fi
 
+# if [[ -n "$LABWC_PID" ]]; then
+#    sfwbar
+# fi
+
 # https://www.toptal.com/designers/subtlepatterns/
 BG_FILE=$(find ~/Pictures/ -maxdepth 1 -type f -name 'wallpaper-*.png')
 BG_FILE=$(echo $BG_FILE | head -n 1)
