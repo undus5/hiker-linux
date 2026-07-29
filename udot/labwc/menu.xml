@@ -12,9 +12,12 @@
         <item label="Dmenu">
             <action name="Execute" command="wlctl.sh dynamic-menu" />
         </item>
-        <item label="Reconfigure">
-            <action name="Reconfigure" />
+        <item label="Reload">
+            <action name="Execute" command="wlctl.sh reload" />
         </item>
+        <!-- <item label="Reconfigure"> -->
+        <!--     <action name="Reconfigure" /> -->
+        <!-- </item> -->
         <menu id="screenshot" label="Sreenshot">
             <item label="Select Area">
                 <action name="Execute" command="wlctl.sh screenshot-area" />

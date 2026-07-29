@@ -6,7 +6,7 @@ errf() { printf "${@}\n" >&2; exit 1; }
 
 test_cmd() {
    local name="$1"
-   command -v "$name" &>/dev/null || errf "command not found: ${name}"
+   command -v "$name" &>/dev/null || errf "command not found: $name"
 }
 
 #################################################################################
@@ -14,13 +14,13 @@ test_cmd() {
 #################################################################################
 
 reload() {
-   if [[ -n "${SWAYSOCK}" ]]; then
+   if [[ -n "$SWAYSOCK" ]]; then
       swaymsg reload
    fi
-   if [[ -n "${LABWC_PID}" ]]; then
+   if [[ -n "$LABWC_PID" ]]; then
       labwc -r
    fi
-   if [[ -n "${SWAYSOCK}" || -n "${LABWC_PID}" ]]; then
+   if [[ -n "$SWAYSOCK" || -n "$LABWC_PID" ]]; then
       wlinit.sh
       pidof kanshi &>/dev/null && sleep 0.1 && kanshictl reload
    fi
@@ -34,7 +34,7 @@ reload() {
 vol_get() {
    test_cmd wpctl
    local id="$1"
-   local info=$(wpctl get-volume ${id})
+   local info=$(wpctl get-volume $id)
    local integer=$(echo "$info" | awk -F'[. ]' '{ print $2 }')
    local fraction=$(echo "$info" | awk -F'[. ]' '{ print $3 }')
    local muted=$(echo "$info" | awk -F'[. ]' '{ print $4 }')
@@ -117,19 +117,19 @@ sink_toggle() {
       local desc
 
       for i in "${!sinkids[@]}"; do
-         if [[ "${sinkids[$i]}" == "${currentid}" ]]; then
+         if [[ "${sinkids[$i]}" == "$currentid" ]]; then
             index=$i
             break
          fi
       done
 
-      index=$(( ${index} + 1 ))
+      index=$(( $index + 1 ))
       (( index >= size )) && index=0
       targetid=${sinkids[$index]}
-      desc=$(pw-dump | jq -r --argjson id ${targetid} '.[]|select(.id==$id)|.info.props."node.description"')
+      desc=$(pw-dump | jq -r --argjson id $targetid '.[]|select(.id==$id)|.info.props."node.description"')
 
-      wpctl set-default ${targetid}
-      notify-send -a $(basename $0) -t 1000 "Audio Sink" "${desc}"
+      wpctl set-default $targetid
+      notify-send -a $(basename $0) -t 1000 "Audio Sink" "$desc"
 }
 
 #################################################################################
@@ -174,7 +174,7 @@ bar_status() {
       str+="$(scratchpad_count)"
       str+="$(muted_label)"
       str+="$(date '+%a %b.%d %H:%M')"
-      printf "%s \n" "${str}"
+      printf "%s \n" "$str"
       sleep 0.1
    done
 }
@@ -239,7 +239,7 @@ terminal() {
    fi
 }
 
-dynamic_menu() { wmenu-run -b -f 'monospace bold 18' "${@}"; }
+dynamic_menu() { wmenu-run -b -f 'monospace bold 18' "$@"; }
 
 app_launcher() { fuzzel; }
 
@@ -255,6 +255,6 @@ case "$1" in
       ;;
    *)
       cmd="$1"; shift
-      ${cmd//-/_} "${@}"
+      ${cmd//-/_} "$@"
       ;;
 esac
