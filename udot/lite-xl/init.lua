@@ -11,90 +11,75 @@ local style = require "core.style"
 
 -- https://lite-xl.com/user-guide/configuration/#fonts
 
+local font_size = 16 * SCALE
+local fonts_loaded = {}
+
 local font_dir = USERDIR .. "/fonts/"
 
-local latin_ttf = font_dir .. "JetBrainsMonoNL-Regular.ttf"
-local sc_ttf = font_dir .. "SarasaTermSC-Regular.ttf"
-local tc_ttf = font_dir .. "SarasaTermTC-Regular.ttf"
-local jp_ttf = font_dir .. "SarasaTermJ-Regular.ttf"
-local kr_ttf = font_dir .. "SarasaTermK-Regular.ttf"
+local ttf_latin = font_dir .. "JetBrainsMonoNL-Regular.ttf"
+local ttf_sc = font_dir .. "SarasaTermSC-Regular.ttf"
+local ttf_tc = font_dir .. "SarasaTermTC-Regular.ttf"
+local ttf_jp = font_dir .. "SarasaTermJ-Regular.ttf"
+local ttf_kr = font_dir .. "SarasaTermK-Regular.ttf"
 
-local latin_italic_ttf = font_dir .. "JetBrainsMonoNL-Italic.ttf"
-local sc_italic_ttf = font_dir .. "SarasaTermSC-Italic.ttf"
-local tc_italic_ttf = font_dir .. "SarasaTermTC-Italic.ttf"
-local jp_italic_ttf = font_dir .. "SarasaTermJ-Italic.ttf"
-local kr_italic_ttf = font_dir .. "SarasaTermK-Italic.ttf"
+local ttf_italic_latin = font_dir .. "JetBrainsMonoNL-Italic.ttf"
+local ttf_italic_sc = font_dir .. "SarasaTermSC-Italic.ttf"
+local ttf_italic_tc = font_dir .. "SarasaTermTC-Italic.ttf"
+local ttf_italic_jp = font_dir .. "SarasaTermJ-Italic.ttf"
+local ttf_italic_kr = font_dir .. "SarasaTermK-Italic.ttf"
 
-local font_size = 16 * SCALE
-local load = renderer.font.load
-local loaded_fonts = {}
-local font_file
-
--- code font
-
-font_file = io.open(latin_ttf, "r")
-if font_file then
-  io.close(font_file)
-  table.insert(loaded_fonts, load(latin_ttf, font_size))
+local function file_exists(path)
+   local f = io.open(path, "r")
+   if f then
+      f:close()
+      return true
+   end
+   return false
 end
 
-font_file = io.open(sc_ttf, "r")
-if font_file then
-  io.close(font_file)
-  table.insert(loaded_fonts, load(sc_ttf, font_size))
+if file_exists(ttf_latin) then
+  table.insert(fonts_loaded, renderer.font.load(ttf_latin, font_size))
 end
 
-font_file = io.open(tc_ttf, "r")
-if font_file then
-  io.close(font_file)
-  table.insert(loaded_fonts, load(tc_ttf, font_size))
+if file_exists(ttf_sc) then
+  table.insert(fonts_loaded, renderer.font.load(ttf_sc, font_size))
 end
 
-font_file = io.open(jp_ttf, "r")
-if font_file then
-  io.close(font_file)
-  table.insert(loaded_fonts, load(jp_ttf, font_size))
+if file_exists(ttf_tc) then
+  table.insert(fonts_loaded, renderer.font.load(ttf_tc, font_size))
 end
 
-font_file = io.open(kr_ttf, "r")
-if font_file then
-  io.close(font_file)
-  table.insert(loaded_fonts, load(kr_ttf, font_size))
+if file_exists(ttf_jp) then
+  table.insert(fonts_loaded, renderer.font.load(ttf_jp, font_size))
 end
 
-font_file = io.open(latin_italic_ttf, "r")
-if font_file then
-  io.close(font_file)
-  table.insert(loaded_fonts, load(latin_italic_ttf, font_size))
+if file_exists(ttf_kr) then
+  table.insert(fonts_loaded, renderer.font.load(ttf_kr, font_size))
 end
 
-font_file = io.open(sc_italic_ttf, "r")
-if font_file then
-  io.close(font_file)
-  table.insert(loaded_fonts, load(sc_italic_ttf, font_size))
+if file_exists(ttf_italic_latin) then
+  table.insert(fonts_loaded, renderer.font.load(ttf_italic_latin, font_size))
 end
 
-font_file = io.open(tc_italic_ttf, "r")
-if font_file then
-  io.close(font_file)
-  table.insert(loaded_fonts, load(tc_italic_ttf, font_size))
+if file_exists(ttf_italic_sc) then
+  table.insert(fonts_loaded, renderer.font.load(ttf_italic_sc, font_size))
 end
 
-font_file = io.open(jp_italic_ttf, "r")
-if font_file then
-  io.close(font_file)
-  table.insert(loaded_fonts, load(jp_italic_ttf, font_size))
+if file_exists(ttf_italic_tc) then
+  table.insert(fonts_loaded, renderer.font.load(ttf_italic_tc, font_size))
 end
 
-font_file = io.open(kr_italic_ttf, "r")
-if font_file then
-  io.close(font_file)
-  table.insert(loaded_fonts, load(kr_italic_ttf, font_size))
+if file_exists(ttf_italic_jp) then
+  table.insert(fonts_loaded, renderer.font.load(ttf_italic_jp, font_size))
 end
 
-if #loaded_fonts > 0 then
-  style.font = renderer.font.group(loaded_fonts)
-  style.code_font = renderer.font.group(loaded_fonts)
+if file_exists(ttf_italic_kr) then
+  table.insert(fonts_loaded, renderer.font.load(ttf_italic_kr, font_size))
+end
+
+if #fonts_loaded > 0 then
+  style.font = renderer.font.group(fonts_loaded)
+  style.code_font = renderer.font.group(fonts_loaded)
 end
 
 ------------------------------ Themes ----------------------------------------
