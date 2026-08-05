@@ -6,7 +6,7 @@
 
 # common package names
 
-COMM_PKGS=" bash bash-completion kbd coreutils util-linux usbutils "
+COMM_PKGS=" bash bash-completion kbd coreutils util-linux usbutils lbzip2"
 COMM_PKGS+=" e2fsprogs btrfs-progs dosfstools parted cryptsetup "
 COMM_PKGS+=" less gawk sed man-db tzdata fontconfig curl neovim "
 COMM_PKGS+=" systemd dracut kmscon seatd iwd linux-firmware "
