@@ -17,7 +17,8 @@ bootstrap_rootfs() {
    debootstrap --components=main,restricted,universe,multiverse \
       --include=$PKGS \
       $CODENAME $ROOT_DIR \
-      https://mirrors.ustc.edu.cn/ubuntu/
+      https://mirrors.cernet.edu.cn/ubuntu/
+      # https://mirrors.ustc.edu.cn/ubuntu/
       # https://mirrors.huaweicloud.com/ubuntu/
       # https://mirrors.aliyun.com/ubuntu/
 }

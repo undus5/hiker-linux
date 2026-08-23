@@ -1,6 +1,7 @@
 [updates]
 name=Fedora $releasever - $basearch - Updates
-baseurl=https://mirrors.ustc.edu.cn/fedora/updates/$releasever/Everything/$basearch/
+baseurl=https://mirrors.cernet.edu.cn/fedora/updates/$releasever/Everything/$basearch/
+        https://mirrors.ustc.edu.cn/fedora/updates/$releasever/Everything/$basearch/
         https://mirrors.aliyun.com/fedora/updates/$releasever/Everything/$basearch/
         https://mirrors.huaweicloud.com/fedora/updates/$releasever/Everything/$basearch/
 #metalink=https://mirrors.fedoraproject.org/metalink?repo=updates-released-f$releasever&arch=$basearch
