@@ -1,11 +1,11 @@
 -- general
 
 -- disable floating window
-swayimg.enable_overlay(false)
+swayimg.overlay = false
 
-swayimg.text.set_timeout(0)
-swayimg.text.set_foreground(0xffeeeeee)
-swayimg.text.set_background(0x88000000)
+swayimg.text.timeout = 0
+swayimg.text.color = 0xffeeeeee
+swayimg.text.background = 0x88000000
 
 swayimg.viewer.set_text("topleft", {"{name}"})
 swayimg.viewer.set_text("topright", {"{frame.width}x{frame.height}"})
