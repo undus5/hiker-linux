@@ -231,6 +231,8 @@ screenshot_window() {
 # apps
 #################################################################################
 
+app_launcher() { fuzzel; }
+
 terminal() {
    if command -v foot &>/dev/null; then
       foot
@@ -239,9 +241,12 @@ terminal() {
    fi
 }
 
-dynamic_menu() { wmenu-run -b -f 'monospace bold 18' "${@}"; }
-
-app_launcher() { fuzzel; }
+dynamic_menu() {
+   if pgrep -x wmenu-run &>/dev/null; then
+      pkill -x wmenu-run
+   fi
+   wmenu-run -b -f 'monospace bold 18' "$@"
+}
 
 #################################################################################
 # dispatcher
