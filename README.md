@@ -1,1 +1,1 @@
-# ulinux
+# udist

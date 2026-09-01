@@ -104,7 +104,7 @@ build_iso() {
    source ${ISO_DIR}/boot/os-release
    local NAME=$ID; [[ -n "$VERSION_ID" ]] && NAME+="-${VERSION_ID}"
    [[ "$NAME" == "arch" ]] && NAME="archlinux-$(date +%Y.%m.%d)"
-   NAME=ulinux-${NAME}
+   NAME=u-${NAME}
    local LABEL=${NAME^^}; LABEL=${LABEL/-/_}
    sed "s/_LABEL_/${LABEL}/g" \
       ${ISO_SRC}/limine/limine.conf >\
