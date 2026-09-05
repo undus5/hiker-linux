@@ -43,14 +43,12 @@ if [[ -f $BG_FILE ]]; then
    BG_NAME=${BG_NAME%.*}
    BG_MODE=${BG_NAME#wallpaper-}
    MODES=( stretch fill fit center tile )
-   MODE=
+   MODE=tile
    for M in ${MODES[@]}; do
       [[ "$BG_MODE" == "$M" ]] && MODE=$M
    done
-   if [[ -n "$MODE" ]]; then
-      chksrv swaybg && pidof swaybg | xargs kill -9
-      bgr swaybg --mode $MODE --image "$BG_FILE"
-   fi
+   chksrv swaybg && pidof swaybg | xargs kill -9
+   bgr swaybg --mode $MODE --image "$BG_FILE"
 fi
 
 ### ~/.bashrc

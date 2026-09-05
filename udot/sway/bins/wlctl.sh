@@ -185,16 +185,45 @@ bar_status() {
 
 lock_screen() {
    test_cmd swaylock
-   pidof swaylock || swaylock \
-      --daemonize \
-      --ignore-empty-password \
-      --indicator-idle-visible \
-      --indicator-radius 50 \
-      --indicator-thickness 13 \
-      --indicator-x-position 80 \
-      --indicator-y-position 80 \
-      --color 000000 \
-      --scaling solid_color
+   BG_FILE=$(find ~/Pictures/ -maxdepth 1 -type f -name 'wallpaper-*.png')
+   BG_FILE=$(echo $BG_FILE | head -n 1)
+   if [[ ! -f $BG_FILE ]]; then
+      BG_FILE=$(find ~/.config/sway/ -maxdepth 1 -type f -name 'wallpaper-*.png')
+      BG_FILE=$(echo $BG_FILE | head -n 1)
+   fi
+   if [[ -f $BG_FILE ]]; then
+      BG_NAME=$(basename $BG_FILE)
+      BG_NAME=${BG_NAME%.*}
+      BG_MODE=${BG_NAME#wallpaper-}
+      MODES=( stretch fill fit center tile )
+      MODE=tile
+      for M in ${MODES[@]}; do
+         [[ "$BG_MODE" == "$M" ]] && MODE=$M
+      done
+      BG_ARGS=" --image $BG_FILE --scaling $MODE "
+   else
+      BG_ARGS=" --color 000000 --scaling solid_color "
+   fi
+   CMDL="swaylock"
+   CMDL+=" --daemonize "
+   CMDL+=" --ignore-empty-password "
+   CMDL+=" --indicator-idle-visible "
+   CMDL+=" --indicator-radius 50 "
+   CMDL+=" --indicator-thickness 13 "
+   CMDL+=" --indicator-x-position 80 "
+   CMDL+=" --indicator-y-position 80 "
+   CMDL+=" --ring-color cccccc "
+   CMDL+=" --ring-clear-color cccccc "
+   CMDL+=" --ring-ver-color cccccc "
+   CMDL+=" --ring-wrong-color cccccc "
+   CMDL+=" --inside-clear-color cccccc "
+   CMDL+=" --inside-ver-color cccccc "
+   CMDL+=" --inside-wrong-color cccccc "
+   CMDL+=" --key-hl-color 333333 "
+   CMDL+=" --bs-hl-color 999999 "
+   CMDL+=" --separator-color ffffff "
+   CMDL+=$BG_ARGS
+   pidof swaylock || $CMDL
 }
 
 # lock_suspend() {
